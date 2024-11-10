@@ -30,26 +30,7 @@ pub struct CalculadoraContract;
 
 #[contractimpl]
 impl CalculadoraContract {
-    // ### FUNÇÕES DOS REGISTROS DAS OPERAÇÕES
-    fn add_operacao(env: Env, op: Operation) -> u32 {
-        let mut ops: Map<u32, Operation> = env.storage().instance().get(&OPERACOES).unwrap_or(map![&env,]);
-
-        let novo_id = ops.len() as u32 + 1;
-        let nova_op = Operation {
-            id: op.id,
-            x: op.x,
-            y: op.y,
-            tipo_op: op.tipo_op,
-            result: op.result
-        };
-
-        ops.set(op.id, nova_op);
-        env.storage().instance().set(&OPERACOES, &ops);
-        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
-
-        novo_id    
-    }
-
+    // ### FUNÇÕES DOS REGISTROS DAS OPERAÇÕES    
     pub fn get_all_operacoes(env: Env) -> Vec<Operation> {
         env.storage()
             .instance()
@@ -76,10 +57,9 @@ impl CalculadoraContract {
             tipo_op: OP::Sum
         };
         
-        //Self::add_operacao(_env, nova_op);
+        // Salvando a operação
         let mut ops: Map<u32, Operation> = env.storage().instance().get(&OPERACOES).unwrap_or(map![&env,]);
-        let novo_id = ops.len() as u32 + 1;        
-
+        let novo_id = ops.len() as u32 + 1;
         ops.set(novo_id, nova_op);
         env.storage().instance().set(&OPERACOES, &ops);
         env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
@@ -88,27 +68,82 @@ impl CalculadoraContract {
     }    
 
     // Função de subtração
-    pub fn sub(_env: Env, x: u32, y: u32) -> u32 {
+    pub fn sub(env: Env, x: u32, y: u32) -> u32 {
+        let result: u32;
+
         if x > y {
-            x - y
+            result = x - y
         } else {
-            y - x
+            result = y - x
         }
+
+        let nova_op = Operation {
+            id: 0,
+            x,
+            y,
+            result,
+            tipo_op: OP::Sub
+        };
+
+        // Salvando a operação
+        let mut ops: Map<u32, Operation> = env.storage().instance().get(&OPERACOES).unwrap_or(map![&env,]);
+        let novo_id = ops.len() as u32 + 1;
+        ops.set(novo_id, nova_op);
+        env.storage().instance().set(&OPERACOES, &ops);
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
+
+        result
     }
 
     // Função de multiplicação
-    pub fn mul(_env: Env, x: u32, y: u32) -> u32 {
-        x * y
+    pub fn mul(env: Env, x: u32, y: u32) -> u32 {
+        let result: u32 = x * y;
+
+        let nova_op = Operation {
+            id: 0,
+            x,
+            y,
+            result,
+            tipo_op: OP::Mul
+        };
+
+        // Salvando a operação
+        let mut ops: Map<u32, Operation> = env.storage().instance().get(&OPERACOES).unwrap_or(map![&env,]);
+        let novo_id = ops.len() as u32 + 1;
+        ops.set(novo_id, nova_op);
+        env.storage().instance().set(&OPERACOES, &ops);
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
+
+        result
     }
 
     // Função de divisão
-    pub fn div(_env: Env, x: u32, y: u32) -> u32 {
+    pub fn div(env: Env, x: u32, y: u32) -> u32 {
+        let result: u32;
         if y == 0 {
-            u32::MAX
+            result = u32::MAX;
         } else {
-            x / y
+            result = x / y;
         }
+
+        let nova_op = Operation {
+            id: 0,
+            x,
+            y,
+            result,
+            tipo_op: OP::Div
+        };
+
+        // Salvando a operação
+        let mut ops: Map<u32, Operation> = env.storage().instance().get(&OPERACOES).unwrap_or(map![&env,]);
+        let novo_id = ops.len() as u32 + 1;
+        ops.set(novo_id, nova_op);
+        env.storage().instance().set(&OPERACOES, &ops);
+        env.storage().instance().extend_ttl(TTL_THRESHOLD, TTL_EXTEND_TO);
+
+        result
     }
+    
 }
 
 mod test;
